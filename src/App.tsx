@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { recipes } from './data/recipes';
 import { Recipe, AIRecipe } from './types/Recipe';
 import { suggestRecipes, generateRecipeDetail } from './services/gemini';
+import { useSpeechRecognition } from './hooks/useSpeechRecognition';
 import './App.css';
 
 function App() {
@@ -13,10 +14,27 @@ function App() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [isLoadingAIRecipe, setIsLoadingAIRecipe] = useState(false);
 
+  // 音声認識フック
+  const {
+    isListening,
+    transcript,
+    startListening,
+    stopListening,
+    resetTranscript,
+    error: speechError
+  } = useSpeechRecognition();
+
   // デバッグ用：selectedRecipeの状態を確認
   useEffect(() => {
     console.log('selectedRecipe changed:', selectedRecipe);
   }, [selectedRecipe]);
+
+  // 音声認識結果を検索ボックスに反映
+  useEffect(() => {
+    if (transcript) {
+      setSearchTerm(transcript);
+    }
+  }, [transcript]);
 
   // すべてのタグを取得（重複を除去）
   const allTags = Array.from(new Set(recipes.flatMap(recipe => recipe.tags)));
@@ -157,17 +175,35 @@ function App() {
         </div>
 
         <form onSubmit={handleSearchSubmit} className="search-form">
-          <input
-            type="text"
-            placeholder="献立を検索..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+          <div className="search-input-container">
+            <input
+              type="text"
+              placeholder="献立を検索..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            <button
+              type="button"
+              className={`voice-button ${isListening ? 'listening' : ''}`}
+              onClick={isListening ? stopListening : startListening}
+              title={isListening ? '音声入力を停止' : '音声入力'}
+            >
+              {isListening ? '🔴' : '🎤'}
+            </button>
+          </div>
           <button type="submit" className="search-button" disabled={isLoadingSuggestions}>
             {isLoadingSuggestions ? '提案中...' : 'レシピ提案'}
           </button>
         </form>
+
+        {/* 音声認識エラー表示 */}
+        {speechError && (
+          <div className="speech-error">
+            {speechError}
+            <button onClick={resetTranscript} className="error-close">×</button>
+          </div>
+        )}
       </header>
 
       <main className="App-main">
