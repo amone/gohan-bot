@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { recipes } from './data/recipes';
 import { Recipe } from './types/Recipe';
+import { suggestRecipes } from './services/gemini';
 import './App.css';
 
 function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [suggestedRecipes, setSuggestedRecipes] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   // デバッグ用：selectedRecipeの状態を確認
   useEffect(() => {
@@ -47,16 +50,35 @@ function App() {
 
   // レシピのフィルタリング
   const filteredRecipes = recipes.filter(recipe => {
-    // テキスト検索
-    const matchesSearch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // タグフィルタリング
+    // タグフィルタリングのみ
     const matchesTags = selectedTags.length === 0 || 
       selectedTags.some(tag => recipe.tags.includes(tag));
-    
-    return matchesSearch && matchesTags;
+    return matchesTags;
   });
+
+  // レシピ提案機能
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchTerm.trim()) return;
+
+    // APIキーの確認
+    if (!process.env.REACT_APP_GEMINI_API_KEY) {
+      alert('Gemini APIキーが設定されていません。\n\n設定方法：\n1. .envファイルを作成\n2. REACT_APP_GEMINI_API_KEY=your_api_key を追加\n3. アプリを再起動');
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const suggestions = await suggestRecipes(searchTerm);
+      setSuggestedRecipes(suggestions);
+    } catch (error) {
+      console.error('レシピ提案エラー:', error);
+      setSuggestedRecipes([]);
+      alert('レシピ提案中にエラーが発生しました。APIキーを確認してください。');
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
 
   return (
     <div className="App">
@@ -114,40 +136,65 @@ function App() {
           </div>
         </div>
 
-        <input
-          type="text"
-          placeholder="献立を検索..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
+        <form onSubmit={handleSearchSubmit} className="search-form">
+          <input
+            type="text"
+            placeholder="献立を検索..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button type="submit" className="search-button" disabled={isLoadingSuggestions}>
+            {isLoadingSuggestions ? '提案中...' : 'レシピ提案'}
+          </button>
+        </form>
       </header>
 
       <main className="App-main">
-        <div className={`recipe-list ${selectedRecipe ? 'hidden' : ''}`}>
-          {filteredRecipes.map(recipe => (
-            <div
-              key={recipe.id}
-              className="recipe-card"
-              style={{
-                backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-              onClick={() => {
-                console.log('Recipe clicked:', recipe.title);
-                setSelectedRecipe(recipe);
-              }}
-            >
-              <h2>{recipe.title}</h2>
-              <p>{recipe.description}</p>
-              <div className="recipe-tags">
-                {recipe.tags.map(tag => (
-                  <span key={tag} className="tag">{tag}</span>
-                ))}
-              </div>
+        {/* AI提案レシピセクション */}
+        {suggestedRecipes.length > 0 && (
+          <div className="ai-suggestions-section">
+            <h2 className="section-title">AIが提案したレシピ</h2>
+            <div className="ai-suggestions-grid">
+              {suggestedRecipes.map((recipe, index) => (
+                <div key={index} className="ai-suggestion-card">
+                  <div className="ai-badge">AI提案</div>
+                  <h3>{recipe}</h3>
+                  <p className="ai-description">Gemini AIが提案したレシピです</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+        )}
+
+        {/* 事前登録レシピセクション */}
+        <div className="registered-recipes-section">
+          <h2 className="section-title">登録済みレシピ</h2>
+          <div className={`recipe-list ${selectedRecipe ? 'hidden' : ''}`}>
+            {filteredRecipes.map(recipe => (
+              <div
+                key={recipe.id}
+                className="recipe-card"
+                style={{
+                  backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+                onClick={() => {
+                  console.log('Recipe clicked:', recipe.title);
+                  setSelectedRecipe(recipe);
+                }}
+              >
+                <h2>{recipe.title}</h2>
+                <p>{recipe.description}</p>
+                <div className="recipe-tags">
+                  {recipe.tags.map(tag => (
+                    <span key={tag} className="tag">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {selectedRecipe && (
