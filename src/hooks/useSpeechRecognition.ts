@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // Web Speech APIの型定義
 declare global {
@@ -37,11 +37,12 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Web Speech APIのサポート確認
-  const isSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = isSupported ? new SpeechRecognition() : null;
+  // Web Speech APIのサポート確認とrecognitionの初期化
+  const recognition = useMemo(() => {
+    const isSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    return isSupported ? new SpeechRecognition() : null;
+  }, []);
 
   useEffect(() => {
     if (!recognition) {
