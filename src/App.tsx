@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { recipes } from './data/recipes';
-import { Recipe } from './types/Recipe';
-import { suggestRecipes } from './services/gemini';
+import { Recipe, AIRecipe } from './types/Recipe';
+import { suggestRecipes, generateRecipeDetail } from './services/gemini';
 import './App.css';
 
 function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [selectedAIRecipe, setSelectedAIRecipe] = useState<AIRecipe | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [suggestedRecipes, setSuggestedRecipes] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isLoadingAIRecipe, setIsLoadingAIRecipe] = useState(false);
 
   // デバッグ用：selectedRecipeの状態を確認
   useEffect(() => {
@@ -77,6 +79,24 @@ function App() {
       alert('レシピ提案中にエラーが発生しました。APIキーを確認してください。');
     } finally {
       setIsLoadingSuggestions(false);
+    }
+  };
+
+  // AI提案レシピの選択処理
+  const handleAIRecipeClick = async (recipeName: string) => {
+    setIsLoadingAIRecipe(true);
+    try {
+      const aiRecipe = await generateRecipeDetail(recipeName);
+      if (aiRecipe) {
+        setSelectedAIRecipe(aiRecipe);
+      } else {
+        alert('レシピ詳細の生成に失敗しました。');
+      }
+    } catch (error) {
+      console.error('AIレシピ詳細生成エラー:', error);
+      alert('レシピ詳細の生成中にエラーが発生しました。');
+    } finally {
+      setIsLoadingAIRecipe(false);
     }
   };
 
@@ -152,15 +172,21 @@ function App() {
 
       <main className="App-main">
         {/* AI提案レシピセクション */}
-        {suggestedRecipes.length > 0 && (
+        {suggestedRecipes.length > 0 && !selectedAIRecipe && (
           <div className="ai-suggestions-section">
             <h2 className="section-title">AIが提案したレシピ</h2>
             <div className="ai-suggestions-grid">
               {suggestedRecipes.map((recipe, index) => (
-                <div key={index} className="ai-suggestion-card">
+                <div 
+                  key={index} 
+                  className="ai-suggestion-card"
+                  onClick={() => handleAIRecipeClick(recipe)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="ai-badge">AI提案</div>
                   <h3>{recipe}</h3>
                   <p className="ai-description">Gemini AIが提案したレシピです</p>
+                  {isLoadingAIRecipe && <p className="loading-text">詳細を生成中...</p>}
                 </div>
               ))}
             </div>
@@ -170,7 +196,7 @@ function App() {
         {/* 事前登録レシピセクション */}
         <div className="registered-recipes-section">
           <h2 className="section-title">登録済みレシピ</h2>
-          <div className={`recipe-list ${selectedRecipe ? 'hidden' : ''}`}>
+          <div className={`recipe-list ${selectedRecipe || selectedAIRecipe ? 'hidden' : ''}`}>
             {filteredRecipes.map(recipe => (
               <div
                 key={recipe.id}
@@ -227,6 +253,41 @@ function App() {
             </ol>
 
             <p>調理時間: {selectedRecipe.cookingTime}分</p>
+          </div>
+        )}
+
+        {selectedAIRecipe && (
+          <div className="recipe-detail ai-recipe-detail">
+            <button 
+              className="back-button"
+              onClick={() => {
+                setSelectedAIRecipe(null);
+              }}
+            >
+              ← レシピ一覧に戻る
+            </button>
+            
+            <div className="ai-recipe-header">
+              <div className="ai-badge-large">AI提案</div>
+              <h2>{selectedAIRecipe.title}</h2>
+            </div>
+            <p>{selectedAIRecipe.description}</p>
+            
+            <h3>材料（{selectedAIRecipe.servings}人分）</h3>
+            <ul>
+              {selectedAIRecipe.ingredients.map((ingredient, index) => (
+                <li key={index}>{ingredient}</li>
+              ))}
+            </ul>
+
+            <h3>作り方</h3>
+            <ol>
+              {selectedAIRecipe.instructions.map((instruction, index) => (
+                <li key={index}>{instruction}</li>
+              ))}
+            </ol>
+
+            <p>調理時間: {selectedAIRecipe.cookingTime}分</p>
           </div>
         )}
       </main>
