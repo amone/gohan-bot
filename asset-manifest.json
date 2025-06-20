@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/gohan-bot/static/css/main.0ce1c7c9.css",
-    "main.js": "/gohan-bot/static/js/main.e06fe7f2.js",
+    "main.css": "/gohan-bot/static/css/main.955c76e8.css",
+    "main.js": "/gohan-bot/static/js/main.b210b4e9.js",
     "static/js/453.926ee546.chunk.js": "/gohan-bot/static/js/453.926ee546.chunk.js",
     "index.html": "/gohan-bot/index.html",
-    "main.0ce1c7c9.css.map": "/gohan-bot/static/css/main.0ce1c7c9.css.map",
-    "main.e06fe7f2.js.map": "/gohan-bot/static/js/main.e06fe7f2.js.map",
+    "main.955c76e8.css.map": "/gohan-bot/static/css/main.955c76e8.css.map",
+    "main.b210b4e9.js.map": "/gohan-bot/static/js/main.b210b4e9.js.map",
     "453.926ee546.chunk.js.map": "/gohan-bot/static/js/453.926ee546.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0ce1c7c9.css",
-    "static/js/main.e06fe7f2.js"
+    "static/css/main.955c76e8.css",
+    "static/js/main.b210b4e9.js"
   ]
 }
