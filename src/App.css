@@ -210,6 +210,25 @@
   line-height: 1.5;
 }
 
+.back-button {
+  background-color: #61dafb;
+  color: #333;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.back-button:hover {
+  background-color: #4fa8c7;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(97, 218, 251, 0.3);
+}
+
 /* タブレット以上の画面サイズ */
 @media (min-width: 768px) {
   .App-header h1 {
@@ -290,6 +309,16 @@
 
   .tag-button.active {
     background-color: #61dafb;
+    color: #1a1a1a;
+  }
+
+  .back-button {
+    background-color: #61dafb;
+    color: #1a1a1a;
+  }
+
+  .back-button:hover {
+    background-color: #4fa8c7;
     color: #1a1a1a;
   }
 }

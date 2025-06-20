@@ -61,31 +61,38 @@ function App() {
       </header>
 
       <main className="App-main">
-        <div className="recipe-list">
-          {filteredRecipes.map(recipe => (
-            <div
-              key={recipe.id}
-              className="recipe-card"
-              style={{
-                backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-              onClick={() => setSelectedRecipe(recipe)}
-            >
-              <h2>{recipe.title}</h2>
-              <p>{recipe.description}</p>
-              <div className="recipe-tags">
-                {recipe.tags.map(tag => (
-                  <span key={tag} className="tag">{tag}</span>
-                ))}
+        {!selectedRecipe ? (
+          <div className="recipe-list">
+            {filteredRecipes.map(recipe => (
+              <div
+                key={recipe.id}
+                className="recipe-card"
+                style={{
+                  backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+                onClick={() => setSelectedRecipe(recipe)}
+              >
+                <h2>{recipe.title}</h2>
+                <p>{recipe.description}</p>
+                <div className="recipe-tags">
+                  {recipe.tags.map(tag => (
+                    <span key={tag} className="tag">{tag}</span>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {selectedRecipe && (
+            ))}
+          </div>
+        ) : (
           <div className="recipe-detail">
+            <button 
+              className="back-button"
+              onClick={() => setSelectedRecipe(null)}
+            >
+              ← レシピ一覧に戻る
+            </button>
+            
             <h2>{selectedRecipe.title}</h2>
             <p>{selectedRecipe.description}</p>
             
