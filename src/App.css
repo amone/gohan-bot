@@ -17,25 +17,68 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=1200&h=600&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 60vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   padding: 10px;
+  position: relative;
 }
 
 .App-header h1 {
   font-size: 1.8rem;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
 .App-link {
   color: #61dafb;
+}
+
+.tag-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 10px;
+  max-width: 600px;
+}
+
+.tag-button {
+  padding: 8px 16px;
+  border: 2px solid #fff;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tag-button:hover {
+  background-color: #fff;
+  color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.tag-button.active {
+  background-color: #61dafb;
+  color: #fff;
+  border-color: #61dafb;
+  box-shadow: 0 2px 8px rgba(97, 218, 251, 0.5);
 }
 
 @keyframes App-logo-spin {
@@ -51,34 +94,46 @@
   padding: 12px;
   width: 100%;
   max-width: 300px;
-  border: 1px solid #ccc;
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 8px;
   font-size: 16px;
   margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.search-input::placeholder {
+  color: #666;
 }
 
 .App-main {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 15px;
   padding: 0 10px;
 }
 
 .recipe-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 15px;
+  gap: 10px;
 }
 
 .recipe-card {
   border: 1px solid #ddd;
   border-radius: 12px;
-  padding: 15px;
+  padding: 12px;
   cursor: pointer;
   transition: transform 0.2s;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .recipe-card:active {
@@ -88,13 +143,16 @@
 .recipe-card h2 {
   font-size: 1.4rem;
   margin: 0 0 10px 0;
-  color: #333;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-weight: bold;
 }
 
 .recipe-card p {
   font-size: 1rem;
-  color: #666;
+  color: #fff;
   margin: 0 0 10px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .recipe-tags {
@@ -105,19 +163,22 @@
 }
 
 .tag {
-  background-color: #e0e0e0;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
   padding: 4px 10px;
   border-radius: 15px;
   font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .recipe-detail {
   background-color: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   text-align: left;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .recipe-detail h2 {
@@ -180,6 +241,10 @@
     color: #fff;
   }
 
+  .App-header {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=1200&h=600&fit=crop');
+  }
+
   .recipe-card, .recipe-detail {
     background-color: #2d2d2d;
     border-color: #404040;
@@ -198,17 +263,33 @@
   }
 
   .tag {
-    background-color: #404040;
-    color: #fff;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
   }
 
   .search-input {
-    background-color: #2d2d2d;
-    border-color: #404040;
+    background-color: rgba(45, 45, 45, 0.95);
+    border-color: rgba(255, 255, 255, 0.6);
     color: #fff;
   }
 
   .search-input::placeholder {
     color: #999;
+  }
+
+  .tag-button {
+    border-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(45, 45, 45, 0.9);
+    color: #fff;
+  }
+
+  .tag-button:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+  }
+
+  .tag-button.active {
+    background-color: #61dafb;
+    color: #1a1a1a;
   }
 }

@@ -6,16 +6,51 @@ import './App.css';
 function App() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  const filteredRecipes = recipes.filter(recipe =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // すべてのタグを取得（重複を除去）
+  const allTags = Array.from(new Set(recipes.flatMap(recipe => recipe.tags)));
+
+  // タグボタンのクリック処理
+  const handleTagClick = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  // レシピのフィルタリング
+  const filteredRecipes = recipes.filter(recipe => {
+    // テキスト検索
+    const matchesSearch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // タグフィルタリング
+    const matchesTags = selectedTags.length === 0 || 
+      selectedTags.some(tag => recipe.tags.includes(tag));
+    
+    return matchesSearch && matchesTags;
+  });
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>献立提案アプリ</h1>
+        
+        {/* タグボタン */}
+        <div className="tag-buttons">
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              className={`tag-button ${selectedTags.includes(tag) ? 'active' : ''}`}
+              onClick={() => handleTagClick(tag)}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+
         <input
           type="text"
           placeholder="献立を検索..."
@@ -31,6 +66,11 @@ function App() {
             <div
               key={recipe.id}
               className="recipe-card"
+              style={{
+                backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
               onClick={() => setSelectedRecipe(recipe)}
             >
               <h2>{recipe.title}</h2>
