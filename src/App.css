@@ -50,8 +50,23 @@
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
+  align-items: center;
   margin-bottom: 10px;
   max-width: 600px;
+}
+
+.tag-category {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-separator {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 4px;
+  user-select: none;
 }
 
 .tag-button {
@@ -76,9 +91,11 @@
 
 .tag-button.active {
   background-color: #61dafb;
-  color: #fff;
-  border-color: #61dafb;
-  box-shadow: 0 2px 8px rgba(97, 218, 251, 0.5);
+  color: #1a1a1a;
+}
+
+.tag-separator {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 @keyframes App-logo-spin {
@@ -118,6 +135,10 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
+}
+
+.recipe-list.hidden {
+  display: none;
 }
 
 .recipe-card {

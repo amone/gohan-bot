@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { recipes } from './data/recipes';
 import { Recipe } from './types/Recipe';
 import './App.css';
@@ -8,8 +8,33 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  // デバッグ用：selectedRecipeの状態を確認
+  useEffect(() => {
+    console.log('selectedRecipe changed:', selectedRecipe);
+  }, [selectedRecipe]);
+
   // すべてのタグを取得（重複を除去）
   const allTags = Array.from(new Set(recipes.flatMap(recipe => recipe.tags)));
+
+  // タグをカテゴリ別に整理
+  const categorizedTags = {
+    cuisine: ['和食', '洋食'], // 料理ジャンル
+    dishType: ['丼物', '麺類', 'パスタ'], // 料理タイプ
+    difficulty: ['簡単'], // 難易度
+    target: ['子供が好き'], // 対象
+    season: ['夏に食べたい'], // 季節
+    other: ['定番', '煮込み'] // その他
+  };
+
+  // カテゴリ順でタグを並べる
+  const orderedTags = [
+    ...categorizedTags.cuisine,
+    ...categorizedTags.dishType,
+    ...categorizedTags.difficulty,
+    ...categorizedTags.target,
+    ...categorizedTags.season,
+    ...categorizedTags.other
+  ].filter(tag => allTags.includes(tag));
 
   // タグボタンのクリック処理
   const handleTagClick = (tag: string) => {
@@ -40,15 +65,53 @@ function App() {
         
         {/* タグボタン */}
         <div className="tag-buttons">
-          {allTags.map(tag => (
-            <button
-              key={tag}
-              className={`tag-button ${selectedTags.includes(tag) ? 'active' : ''}`}
-              onClick={() => handleTagClick(tag)}
-            >
-              {tag}
-            </button>
-          ))}
+          {/* 料理ジャンル */}
+          <div className="tag-category">
+            {orderedTags.filter(tag => categorizedTags.cuisine.includes(tag)).map(tag => (
+              <button
+                key={tag}
+                className={`tag-button ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          
+          <div className="tag-separator">｜</div>
+          
+          {/* 料理タイプ */}
+          <div className="tag-category">
+            {orderedTags.filter(tag => categorizedTags.dishType.includes(tag)).map(tag => (
+              <button
+                key={tag}
+                className={`tag-button ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          
+          <div className="tag-separator">｜</div>
+          
+          {/* 難易度・対象・季節・その他 */}
+          <div className="tag-category">
+            {orderedTags.filter(tag => 
+              categorizedTags.difficulty.includes(tag) ||
+              categorizedTags.target.includes(tag) ||
+              categorizedTags.season.includes(tag) ||
+              categorizedTags.other.includes(tag)
+            ).map(tag => (
+              <button
+                key={tag}
+                className={`tag-button ${selectedTags.includes(tag) ? 'active' : ''}`}
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
 
         <input
@@ -61,34 +124,40 @@ function App() {
       </header>
 
       <main className="App-main">
-        {!selectedRecipe ? (
-          <div className="recipe-list">
-            {filteredRecipes.map(recipe => (
-              <div
-                key={recipe.id}
-                className="recipe-card"
-                style={{
-                  backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-                onClick={() => setSelectedRecipe(recipe)}
-              >
-                <h2>{recipe.title}</h2>
-                <p>{recipe.description}</p>
-                <div className="recipe-tags">
-                  {recipe.tags.map(tag => (
-                    <span key={tag} className="tag">{tag}</span>
-                  ))}
-                </div>
+        <div className={`recipe-list ${selectedRecipe ? 'hidden' : ''}`}>
+          {filteredRecipes.map(recipe => (
+            <div
+              key={recipe.id}
+              className="recipe-card"
+              style={{
+                backgroundImage: recipe.imageUrl ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${recipe.imageUrl})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+              onClick={() => {
+                console.log('Recipe clicked:', recipe.title);
+                setSelectedRecipe(recipe);
+              }}
+            >
+              <h2>{recipe.title}</h2>
+              <p>{recipe.description}</p>
+              <div className="recipe-tags">
+                {recipe.tags.map(tag => (
+                  <span key={tag} className="tag">{tag}</span>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
+            </div>
+          ))}
+        </div>
+
+        {selectedRecipe && (
           <div className="recipe-detail">
             <button 
               className="back-button"
-              onClick={() => setSelectedRecipe(null)}
+              onClick={() => {
+                console.log('Back button clicked');
+                setSelectedRecipe(null);
+              }}
             >
               ← レシピ一覧に戻る
             </button>
